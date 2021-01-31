@@ -20,8 +20,8 @@ var (
 // InstallMenu 安装目录
 func InstallMenu() {
 	fmt.Println()
-	menu := []string{"更新trojan", "证书申请", "安装mysql"}
-	switch util.LoopInput("请选择: ", menu, true) {
+	menu := []string{"Update Trojan", "Certificate Application", "Install MySQL"}
+	switch util.LoopInput("Please choose: ", menu, true) {
 	case 1:
 		InstallTrojan()
 	case 2:
@@ -68,19 +68,19 @@ func InstallTrojan() {
 func InstallTls() {
 	domain := ""
 	fmt.Println()
-	choice := util.LoopInput("请选择使用证书方式: ", []string{"Let's Encrypt 证书", "自定义证书路径"}, true)
+	choice := util.LoopInput("Please choose the certificate method: ", []string{"Let's Encrypt 证书", "Custom certificate path"}, true)
 	if choice < 0 {
 		return
 	} else if choice == 1 {
 		localIP := util.GetLocalIP()
-		fmt.Printf("本机ip: %s\n", localIP)
+		fmt.Printf("Ip: %s\n", localIP)
 		for {
-			domain = util.Input("请输入申请证书的域名: ", "")
+			domain = util.Input("Please enter the domain name for the certificate: ", "")
 			ipList, err := net.LookupIP(domain)
-			fmt.Printf("%s 解析到的ip: %v\n", domain, ipList)
+			fmt.Printf("%s resolved ip: %v\n", domain, ipList)
 			if err != nil {
 				fmt.Println(err)
-				fmt.Println("域名有误,请重新输入")
+				fmt.Println("The domain name is wrong, please re-enter")
 				continue
 			}
 			checkIp := false
@@ -92,7 +92,7 @@ func InstallTls() {
 			if checkIp {
 				break
 			} else {
-				fmt.Println("输入的域名和本机ip不一致, 请重新输入!")
+				fmt.Println("The entered domain name is inconsistent with the local ip, please re-enter!")
 			}
 		}
 		util.InstallPack("socat")
@@ -106,14 +106,14 @@ func InstallTls() {
 		keyFile := "/root/.acme.sh/" + domain + "_ecc" + "/" + domain + ".key"
 		core.WriteTls(crtFile, keyFile, domain)
 	} else if choice == 2 {
-		crtFile := util.Input("请输入证书的cert文件路径: ", "")
-		keyFile := util.Input("请输入证书的key文件路径: ", "")
+		crtFile := util.Input("Please enter the cert file path of the certificate: ", "")
+		keyFile := util.Input("Please enter the key file path of the certificate: ", "")
 		if !util.IsExists(crtFile) || !util.IsExists(keyFile) {
-			fmt.Println("输入的cert或者key文件不存在!")
+			fmt.Println("The entered cert or key file does not exist!!")
 		} else {
-			domain = util.Input("请输入此证书对应的域名: ", "")
+			domain = util.Input("Please enter the domain name corresponding to this certificate: ", "")
 			if domain == "" {
-				fmt.Println("输入域名为空!")
+				fmt.Println("The input domain name is empty!")
 				return
 			}
 			core.WriteTls(crtFile, keyFile, domain)
@@ -134,7 +134,7 @@ func InstallMysql() {
 	if util.IsExists("/.dockerenv") {
 		choice = 2
 	} else {
-		choice = util.LoopInput("请选择: ", []string{"安装docker版mysql(mariadb)", "输入自定义mysql连接"}, true)
+		choice = util.LoopInput("Please choose: ", []string{"Install docker version of mysql(mariadb)", "Enter a custom mysql connection"}, true)
 	}
 	if choice < 0 {
 		return
@@ -149,7 +149,7 @@ func InstallMysql() {
 		util.ExecCommand(fmt.Sprintf(dbDockerRun, mysql.ServerPort, mysql.Password))
 		db := mysql.GetDB()
 		for {
-			fmt.Printf("%s mariadb启动中,请稍等...\n", time.Now().Format("2006-01-02 15:04:05"))
+			fmt.Printf("%s mariadb is starting, please wait...\n", time.Now().Format("2006-01-02 15:04:05"))
 			err := db.Ping()
 			if err == nil {
 				db.Close()
@@ -158,35 +158,35 @@ func InstallMysql() {
 				time.Sleep(2 * time.Second)
 			}
 		}
-		fmt.Println("mariadb启动成功!")
+		fmt.Println("mariadb started successfully!")
 	} else if choice == 2 {
 		mysql = core.Mysql{}
 		for {
 			for {
-				mysqlUrl := util.Input("请输入mysql连接地址(格式: host:port), 默认连接地址为127.0.0.1:3306, 使用直接回车, 否则输入自定义连接地址: ",
+				mysqlUrl := util.Input("Please enter the mysql connection address (format: host:port), the default connection address is 127.0.0.1:3306, press enter, otherwise enter a custom connection address: ",
 					"127.0.0.1:3306")
 				urlInfo := strings.Split(mysqlUrl, ":")
 				if len(urlInfo) != 2 {
-					fmt.Printf("输入的%s不符合匹配格式(host:port)\n", mysqlUrl)
+					fmt.Printf("The input %s does not match the matching format (host:port)\n", mysqlUrl)
 					continue
 				}
 				port, err := strconv.Atoi(urlInfo[1])
 				if err != nil {
-					fmt.Printf("%s不是数字\n", urlInfo[1])
+					fmt.Printf("%s is not a number\n", urlInfo[1])
 					continue
 				}
 				mysql.ServerAddr, mysql.ServerPort = urlInfo[0], port
 				break
 			}
-			mysql.Username = util.Input("请输入mysql的用户名(回车使用root): ", "root")
-			mysql.Password = util.Input(fmt.Sprintf("请输入mysql %s用户的密码: ", mysql.Username), "")
+			mysql.Username = util.Input("Please enter the username of mysql (Enter to use root): ", "root")
+			mysql.Password = util.Input(fmt.Sprintf("Please enter the password of the mysql %s user: ", mysql.Username), "")
 			db := mysql.GetDB()
 			if db != nil && db.Ping() == nil {
-				mysql.Database = util.Input("请输入使用的数据库名(不存在可自动创建, 回车使用trojan): ", "trojan")
+				mysql.Database = util.Input("Please enter the name of the database used (it can be created automatically if it does not exist, press Enter to use trojan): ", "trojan")
 				db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", mysql.Database))
 				break
 			} else {
-				fmt.Println("连接mysql失败, 请重新输入")
+				fmt.Println("Failed to connect to mysql, please re-enter")
 			}
 		}
 	}
