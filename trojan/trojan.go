@@ -21,9 +21,9 @@ func ControllMenu() {
 	} else {
 		tType = "trojan"
 	}
-	menu := []string{"启动trojan", "停止trojan", "重启trojan", "查看trojan状态", "查看trojan日志"}
-	menu = append(menu, "切换为"+tType)
-	switch util.LoopInput("请选择: ", menu, true) {
+	menu := []string{"Start trojan", "Stop trojan", "Restart trojan", "View trojan status", "View trojan log""}
+	menu = append(menu, "Switch to"+tType)
+	switch util.LoopInput("Please choose: ", menu, true) {
 	case 1:
 		Start()
 	case 2:
@@ -47,27 +47,27 @@ func ControllMenu() {
 // Restart 重启trojan
 func Restart() {
 	if err := util.ExecCommand("systemctl restart trojan"); err != nil {
-		fmt.Println(util.Red("重启trojan失败!"))
+		fmt.Println(util.Red("Failed to restart trojan!"))
 	} else {
-		fmt.Println(util.Green("重启trojan成功!"))
+		fmt.Println(util.Green("Restart trojan successfully!"))
 	}
 }
 
 // Start 启动trojan
 func Start() {
 	if err := util.ExecCommand("systemctl start trojan"); err != nil {
-		fmt.Println(util.Red("启动trojan失败!"))
+		fmt.Println(util.Red("Failed to start trojan!"))
 	} else {
-		fmt.Println(util.Green("启动trojan成功!"))
+		fmt.Println(util.Green("Start trojan successfully!"))
 	}
 }
 
 // Stop 停止trojan
 func Stop() {
 	if err := util.ExecCommand("systemctl stop trojan"); err != nil {
-		fmt.Println(util.Red("停止trojan失败!"))
+		fmt.Println(util.Red("Failed to stop trojan!"))
 	} else {
-		fmt.Println(util.Green("停止trojan成功!"))
+		fmt.Println(util.Green("Stop Trojan successfully!"))
 	}
 }
 
